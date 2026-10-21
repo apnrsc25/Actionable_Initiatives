@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Disaster Command: Road + Air Relief</title>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#060b14;--panel:#0d1626;--line:#1c2b44;--tx:#d7e3f4;--mut:#7f93b2;--cy:#38e8ff;--or:#ff9f43;--gr:#4dff9d;--rd:#ff5d73}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#12264a 0,var(--bg) 60%);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:50%;border:2px solid var(--cy);display:grid;place-items:center;color:var(--cy);box-shadow:0 0 14px #38e8ff66;font-weight:700}
+h1{font-size:20px;margin:0;letter-spacing:.5px}
+nav{margin-left:auto;display:flex;gap:6px}
+nav button,.btn{background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on,.btn.pri{border-color:var(--cy);color:var(--cy);box-shadow:0 0 12px #38e8ff33}
+.btn:disabled{opacity:.5;cursor:default}
+main{padding:16px 18px;max-width:1200px;margin:auto}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h3{margin:0 0 8px;font-size:13.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)}
+canvas{width:100%;display:block;border-radius:10px;border:1px solid var(--line);background:#050a12}
+.stepwrap{position:relative;margin-bottom:14px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.st{position:relative;border:2px solid var(--line);border-radius:12px;padding:14px 14px 12px 14px;background:var(--panel);color:var(--mut);font-size:14px;transition:.4s}
+.st .n{position:absolute;top:-12px;left:12px;width:28px;height:28px;border-radius:50%;background:#12264a;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--tx);font-size:14px;transition:.4s}
+.st b{display:block;color:var(--tx);font-size:16px;margin:4px 0 2px}
+.st .stat{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.st.on{border-color:var(--cy);color:var(--tx);background:#0e2440;animation:pulse 1.4s infinite}
+.st.on .n{background:var(--cy);color:#04121c;border-color:var(--cy)}
+.st.on .stat{color:#04121c;background:var(--cy);border-color:var(--cy)}
+.st.done{border-color:var(--gr);background:#0a2118;color:#9fd9bb}
+.st.done .n{background:var(--gr);color:#04140c;border-color:var(--gr)}
+.st.done .stat{color:var(--gr);border-color:var(--gr)}
+@keyframes pulse{0%,100%{box-shadow:0 0 6px #38e8ff55}50%{box-shadow:0 0 26px #38e8ffcc}}
+#bar{height:6px;border-radius:99px;background:var(--line);margin-top:12px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.2s ease;box-shadow:0 0 10px var(--cy)}
+.ctl{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--cy)}
+.kpi{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}
+#log{height:150px;overflow:auto;font:13.5px/1.5 ui-monospace,Menlo,monospace;color:var(--mut)}
+#log div b{color:var(--gr);font-weight:400}
+.leg{display:flex;gap:12px;flex-wrap:wrap;font-size:13.5px;color:var(--mut);margin-top:8px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.hide{display:none}
+#chat{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.m{max-width:90%;padding:8px 12px;border-radius:10px;border:1px solid var(--line)}
+.m.u{align-self:flex-end;background:#12264a}.m.a{background:#0a1220}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font-size:13.5px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--cy);cursor:pointer}
+.row{display:flex;gap:8px}
+input[type=text]{flex:1;background:#050a12;border:1px solid var(--line);color:var(--tx);padding:9px 12px;border-radius:8px;font:inherit;min-width:0}
+#wards{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.w{aspect-ratio:1;border-radius:6px;font-size:11.5px;padding:4px;display:flex;flex-direction:column;justify-content:space-between;border:2px solid transparent;transition:.3s}
+.w.hit{border-color:var(--or);box-shadow:0 0 14px #ff9f4388;transform:scale(1.04)}
+.w.dim{opacity:.35}
+.tag{display:inline-block;font-size:12.5px;padding:2px 8px;border:1px solid var(--line);border-radius:99px;color:var(--mut);margin:2px 3px 0 0}
+.bd{white-space:nowrap;font-size:11.5px;font-weight:700;letter-spacing:1px;padding:1px 9px;border-radius:99px;border:1px solid currentColor}
+.paused .st.on{animation-play-state:paused}#pp[aria-pressed=true]{border-color:var(--or);color:var(--or);box-shadow:0 0 12px #ff9f4344}
+html,body{height:100%}
+body{height:100vh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+header{padding:8px 18px;flex:none}
+main{flex:1;min-height:0;width:100%;max-width:1700px;padding:10px 18px;display:flex;flex-direction:column}
+#p1,#p2{flex:1;min-height:0}
+#p1 .grid.g3{height:100%;grid-template-columns:230px minmax(0,1fr) 360px;gap:12px}
+#p1 .stepwrap{margin:0;padding:6px 0 0;display:flex;flex-direction:column;gap:18px;min-height:0}
+#p1 .steps{grid-template-columns:1fr;gap:18px}
+#p1 .st{padding:12px 12px 10px;font-size:13px}
+#p1 .st b{font-size:15px}
+#p1 .st.on{transform:translateX(4px) scale(1.02)}
+#p1 .st .stat{margin-top:6px}
+#p1 #bar{margin-top:0}
+#p1 .mapcard{display:flex;flex-direction:column;min-height:0;min-width:0;padding:10px}
+#p1 .mapcard canvas{flex:1 1 0;min-height:0;width:100%;height:100%;object-fit:contain}
+#p1 .mapcard .ctl{margin:8px 0 0;flex:none}
+#p1 .mapcard .leg{flex:none;margin-top:6px;font-size:12px;gap:4px 10px}
+#p1 .rcol{display:flex;flex-direction:column;gap:10px;min-height:0}
+#p1 .rcol .card{padding:10px 12px}
+#p1 .rcol .mis{flex:0 1 auto;min-height:0;overflow:auto}
+#p1 .rcol .logc{flex:1 1 0;min-height:64px;display:flex;flex-direction:column}
+#p1 #log{height:auto;flex:1;min-height:0;font-size:12.5px}
+.lah,.lr{display:grid;grid-template-columns:minmax(0,1fr) 84px 98px;gap:6px;align-items:center}
+.lah{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);padding-bottom:3px;border-bottom:1px solid var(--line)}
+.lr{padding:4px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.25}.lr:last-child{border:0}
+.lr small{color:var(--mut);font-size:11.5px}.c{text-align:center}.lr .c small{display:block;margin-top:1px;white-space:nowrap}
+#p1 .rcol .card h3{margin-bottom:5px}
+#share{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:50;padding:16px}#share.hide{display:none}
+.sbox{width:min(760px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border:1px solid var(--cy);border-radius:14px;padding:16px;box-shadow:0 0 30px #38e8ff33}
+.sgrid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;margin-top:10px}@media(max-width:700px){.sgrid{grid-template-columns:1fr}}
+.sl{font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+#teams label{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+#sstat div{font-size:13px;padding:3px 0;color:var(--mut)}#sstat b{color:var(--gr);font-weight:600}
+.sx{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#smsg{width:100%;height:260px;resize:vertical;background:#050a12;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:10px;font:13px/1.45 ui-monospace,Menlo,monospace}
+#shareBtn.attn{border-color:var(--cy);color:var(--cy);animation:pulse 1.4s infinite}
+#p2 .grid{height:100%}
+#p2 .card{min-height:0;overflow:auto}
+@media(max-width:1000px){body{height:auto;overflow:auto}main{display:block}#p1 .grid.g3{height:auto;grid-template-columns:1fr}#p1 .steps{grid-template-columns:1fr 1fr}#p1 .mapcard canvas{height:auto}}
+#help{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:60;padding:16px}#help.hide{display:none}
+#help .sbox ol,#help .sbox ul{margin:6px 0 10px;padding-left:22px;font-size:14px}#help .sbox li{margin:3px 0}#help .sbox h4{margin:12px 0 2px;font-size:13px;letter-spacing:1.3px;text-transform:uppercase;color:var(--cy)}
+#helpBtn{border-color:var(--cy);color:var(--cy)}
+</style></head><body>
+<header>
+<div class="logo">B</div>
+<h1>Bhuvan Intelligence Initiatives</h1>
+<nav><button id="helpBtn" title="How to run this demo">? How to use</button><button id="t1" class="on">Flood Response</button><button id="t2">GeoAI Assistant</button></nav>
+</header>
+<main>
+<section id="p1">
+<div class="grid g3">
+<div class="stepwrap"><div class="steps" id="steps">
+<div class="st"><span class="n">1</span><b>Initial Flood Analysis</b>Fetch latest flood map<br><span class="stat">Pending</span></div>
+<div class="st"><span class="n">2</span><b>Suitable Site Analysis</b>DEM + slope + land cover<br><span class="stat">Pending</span></div>
+<div class="st"><span class="n">3</span><b>Route Analysis</b>Convoys by road, airlift beyond<br><span class="stat">Pending</span></div>
+<div class="st"><span class="n">4</span><b>Sharing</b>Data available for sharing<br><span class="stat">Pending</span></div></div>
+<div id="bar"><i></i></div></div>
+<div class="card mapcard">
+<canvas id="cv" width="960" height="600"></canvas>
+<div class="ctl"><span style="color:var(--mut)">Flood level</span><input type="range" id="lvl" min="1" max="12" step="0.5" value="5"><b id="lvlv" style="color:var(--cy);width:64px;white-space:nowrap;text-align:right">5.0 m</b></div>
+<div class="ctl"><button class="btn pri" id="run">▶ Trigger flood alert</button><button class="btn" id="reset">Reset</button><button class="btn" id="pp" aria-pressed="false" title="Space bar also toggles">⏸ Pause</button><button class="btn" id="surge">⏩ Simulate rising river</button><button class="btn" id="shareBtn" disabled>📤 Share</button></div>
+<div class="leg"><span><i style="background:#2d7fff"></i>Flood (SAR)</span><span><i style="background:var(--gr)"></i>Landing site</span><span><i style="background:var(--or)"></i>Road to landing site</span><span><i style="background:var(--cy)"></i>Helicopter airlift</span><span><i style="background:var(--gr)"></i>Road to open town</span><span><i style="background:var(--rd)"></i>At risk / cut off</span><span><i style="background:#fff"></i>Relief base</span><span><i style="background:#cfe3ff"></i>Town</span></div>
+</div>
+<div class="rcol">
+<div class="card mis"><h3>Live Accessibility</h3><div id="mis"></div></div>
+<div class="card logc"><h3>Event log</h3><div id="log"></div></div>
+</div></div>
+</section>
+
+<section id="p2" class="hide">
+<div class="grid">
+<div class="card"><h3>GeoAI Assistant</h3>
+<div id="chat"><div class="m a">Namaste! Ask me about your district in plain language. I'll pick the layers, run the analysis and return a map with a short explanation. I can also read the live flood plan: try “which towns are cut off?”.</div></div>
+<div class="chips" id="chips"></div>
+<div class="row"><input type="text" id="q" placeholder="e.g. Show wards with high heat and low tree cover"><button class="btn pri" id="send">Ask</button></div></div>
+<div class="card"><h3>District map · 24 wards</h3><div id="wards"></div>
+<div class="leg"><span><i style="background:#c0392b"></i>Hotter</span><span><i style="background:#2d6a4f"></i>Greener</span><span><i style="background:var(--or)"></i>Priority</span></div>
+<div id="layers" style="margin-top:8px"></div></div>
+</div>
+</section>
+</main>
+
+<div id="help" class="hide" role="dialog" aria-modal="true" aria-label="How to use this demo"><div class="sbox">
+<div style="display:flex;align-items:center;gap:10px"><h3 style="margin:0;flex:1">Steps to run</h3><button class="btn" id="hclose">Close ✕</button></div>
+<h4>Tab 1 · Flood Response</h4>
+<ol>
+<li>Set the <b>Flood level</b> slider (1 to 12 m). A higher level floods more area.</li>
+<li>Click <b>▶ Trigger flood alert</b>. The four steps on the left run in order: flood analysis, suitable landing sites, route analysis, sharing.</li>
+<li>Watch the map. Blue is flood water, green marks landing sites and open roads, orange is road to a landing site, cyan is helicopter airlift, red marks towns at risk or cut off. The <b>Live Accessibility</b> panel and <b>Event log</b> on the right update as it runs.</li>
+<li>Once step 3 is done, click <b>⏩ Simulate rising river</b> to watch routes re-plan as the water rises. You can also drag the slider to re-plan manually.</li>
+<li>Click <b>📤 Share</b> to pick recipients, edit the alert message, copy it, open it in WhatsApp or email, or export the map (PNG) and accessibility table (CSV).</li>
+<li><b>⏸ Pause</b> (or the Space bar) freezes the simulation. <b>Reset</b> starts over.</li>
+</ol>
+<h4>Tab 2 · GeoAI Assistant</h4>
+<ul>
+<li>Click a suggestion chip or type a question in plain language, for example <i>Show wards with high heat and low tree cover</i>, then press <b>Ask</b> or Enter.</li>
+<li>The district map highlights the priority wards and lists the layers used.</li>
+<li>Run the flood simulation first, then ask <i>which towns are cut off?</i> to query the live flood plan.</li>
+</ul>
+<p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">Note: all data is illustrative and “Send alert” only simulates delivery. Press Esc to close this window.</p>
+</div></div>
+
+<div id="share" class="hide" role="dialog" aria-modal="true" aria-label="Share with field teams"><div class="sbox">
+<div style="display:flex;align-items:center;gap:10px"><h3 style="margin:0;flex:1">Share with field teams</h3><button class="btn" id="sclose">Close ✕</button></div>
+<div class="sgrid">
+<div><div class="sl">Recipients</div><div id="teams">
+<label><input type="checkbox" checked> District Control Room (SDMA)</label>
+<label><input type="checkbox" checked> Road Convoy Team</label>
+<label><input type="checkbox" checked> Helicopter Airlift Unit</label>
+<label><input type="checkbox"> Town Municipal Officers (cut-off towns)</label></div>
+<button class="btn pri" id="ssend" style="margin-top:10px;width:100%">Send alert to selected</button>
+<div id="sstat"></div>
+<div class="sl" style="margin-top:12px">Export</div>
+<div class="sx"><button class="btn" id="spng">🗺 Map (PNG)</button><button class="btn" id="scsv">📄 Accessibility (CSV)</button></div></div>
+<div><div class="sl">Message (editable)</div><textarea id="smsg" spellcheck="false"></textarea>
+<div class="sx"><button class="btn" id="scopy">📋 Copy</button><button class="btn" id="swa">WhatsApp</button><button class="btn" id="smail">✉ Email</button></div></div>
+</div><div class="sl" style="margin-top:10px;text-transform:none;letter-spacing:0">Demo: “Send alert” only simulates delivery. WhatsApp and Email open your own app with the message filled in.</div>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+function rng(s){return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
+function logl(t){const d=document.createElement('div');d.innerHTML='<b>'+new Date().toLocaleTimeString([], {hour12:false})+'</b> '+t;$('log').appendChild(d);$('log').scrollTop=1e9}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+function tab(n){$('p1').classList.toggle('hide',n!=1);$('p2').classList.toggle('hide',n!=2);$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)}
+
+const W=64,H=40,C=15,R=rng(7);
+const noise=(()=>{const g=[];for(let i=0;i<(W+2)*(H+2);i++)g.push(R());const f=(x,y)=>{const xi=Math.floor(x),yi=Math.floor(y),tx=x-xi,ty=y-yi,s=t=>t*t*(3-2*t);const a=g[yi*(W+2)+xi],b=g[yi*(W+2)+xi+1],c=g[(yi+1)*(W+2)+xi],d=g[(yi+1)*(W+2)+xi+1];return(a+(b-a)*s(tx))+((c+(d-c)*s(tx))-(a+(b-a)*s(tx)))*s(ty)};return f})();
+const riverX=y=>W*.5+7*Math.sin(y/5.5)+3*Math.sin(y/2.3);
+const el=new Float32Array(W*H),veg=new Float32Array(W*H);
+for(let y=0;y<H;y++)for(let x=0;x<W;x++){const d=Math.abs(x-riverX(y));el[y*W+x]=.2+d*.55+noise(x/6,y/6)*4+noise(x/2.5,y/2.5)*.9+(x<14?(14-x)*.25:0)+(x>50?(x-50)*.2:0);veg[y*W+x]=noise(x/4+30%W/8,y/4)}
+const base={x:5,y:6};
+const towns=[{n:'Devgarh',x:38,y:19,r:3,pop:48200},{n:'Ratnapur',x:19,y:21,r:3,pop:31600},{n:'Harigarh',x:49,y:5,r:3,pop:23900},{n:'Nagarpur',x:27,y:34,r:3,pop:27400},{n:'Sundarpur',x:47,y:32,r:3,pop:19800}];
+towns.forEach(t=>t.vul=35+(t.pop*7)%60|0);const vill=towns;
+const nb=[[1,0],[-1,0],[0,1],[0,-1]];
+let S={step:0,running:0,flood:null,sites:[],routes:[],t:0};
+const lvl=()=>+$('lvl').value;
+
+function floodFill(L){const f=new Uint8Array(W*H),q=[];
+ for(let y=0;y<H;y++){const x=Math.round(riverX(y));const i=y*W+x;f[i]=1;q.push(i)}
+ while(q.length){const i=q.pop(),x=i%W,y=(i/W)|0;for(const[dx,dy]of nb){const a=x+dx,b=y+dy;if(a<0||b<0||a>=W||b>=H)continue;const j=b*W+a;if(!f[j]&&el[j]<=L){f[j]=1;q.push(j)}}}return f}
+function dist2flood(f){const D=new Float32Array(W*H).fill(99),q=[];for(let i=0;i<W*H;i++)if(f[i]){D[i]=0;q.push(i)}
+ for(let k=0;k<q.length;k++){const i=q[k],x=i%W,y=(i/W)|0;for(const[dx,dy]of nb){const a=x+dx,b=y+dy;if(a<0||b<0||a>=W||b>=H)continue;const j=b*W+a;if(D[j]>D[i]+1){D[j]=D[i]+1;q.push(j)}}}return D}
+function slope(x,y){let m=0;const e=el[y*W+x];for(const[dx,dy]of nb){const a=x+dx,b=y+dy;if(a<0||b<0||a>=W||b>=H)continue;m=Math.max(m,Math.abs(el[b*W+a]-e))}return m}
+function findSites(f){const D=dist2flood(f),L=lvl(),c=[];
+ for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;if(f[i]||D[i]<3||el[i]<L+1.2||veg[i]>.62||slope(x,y)>.55)continue;if(towns.some(t=>Math.hypot(t.x-x,t.y-y)<t.r+2))continue;
+  let sc=0;for(const v of vill){const d=Math.hypot(v.x-x,v.y-y);if(d<22)sc+=v.pop/(1+d)}if(sc>0)c.push({x,y,sc})}
+ c.sort((a,b)=>b.sc-a.sc);const out=[];for(const s of c){if(out.length>=4)break;if(out.every(o=>Math.hypot(o.x-s.x,o.y-s.y)>9))out.push(s)}return out}
+function route(f,a,b){const N=W*H,g=new Float32Array(N).fill(1e9),p=new Int32Array(N).fill(-1),done=new Uint8Array(N),open=[a.y*W+a.x];g[open[0]]=0;
+ while(open.length){let bi=0;for(let k=1;k<open.length;k++)if(g[open[k]]+h(open[k])<g[open[bi]]+h(open[bi]))bi=k;const i=open.splice(bi,1)[0];if(done[i])continue;done[i]=1;if(i===b.y*W+b.x)break;
+  const x=i%W,y=(i/W)|0;for(const[dx,dy]of nb){const u=x+dx,v=y+dy;if(u<0||v<0||u>=W||v>=H)continue;const j=v*W+u;if(f[j]||done[j])continue;const c=g[i]+1+slope(u,v)*2;if(c<g[j]){g[j]=c;p[j]=i;open.push(j)}}}
+ function h(i){return Math.hypot(i%W-b.x,((i/W)|0)-b.y)}
+ const j0=b.y*W+b.x;if(p[j0]<0&&j0!==a.y*W+a.x)return null;const path=[];for(let i=j0;i>=0;i=p[i])path.push({x:i%W,y:(i/W)|0});return path.reverse()}
+
+function compute(){const L=lvl();S.flood=floodFill(L);S.sites=[];S.routes=[];
+ if(S.step>=2)S.sites=findSites(S.flood);
+ if(S.step>=3)S.routes=S.sites.map(s=>route(S.flood,base,s));
+ S.risk=S.step>=1?riskStats():null;S.mis=S.step>=3?mission():[];renderMis()}
+function riskStats(){const f=S.flood,L=lvl();let n=0,mx=0,sum=0;
+ for(let i=0;i<W*H;i++)if(f[i]){n++;const d=Math.max(0,L-el[i]);sum+=d;if(d>mx)mx=d}
+ const tw=towns.map(t=>{let a=0,c=0;for(let dy=-t.r;dy<=t.r;dy++)for(let dx=-t.r;dx<=t.r;dx++){if(dx*dx+dy*dy>t.r*t.r)continue;const x=t.x+dx,y=t.y+dy;if(x<0||y<0||x>=W||y>=H)continue;c++;a+=f[y*W+x]}
+  const frac=a/c;return{t,frac,exp:Math.round(t.pop*frac),state:frac>=.25?'SEVERE':frac>0?'PARTLY':'SAFE'}});
+ const townExp=tw.reduce((a,x)=>a+x.exp,0);
+ return{area:n*.25,mx,avg:n?sum/n:0,tw,townsAt:tw.filter(x=>x.frac>0).length,townExp,exp:townExp,
+  totalPop:towns.reduce((a,t)=>a+t.pop,0)}}
+function airPlan(v){let bi=-1,bd=1e9;S.sites.forEach((s,k)=>{if(!S.routes[k])return;const d=Math.hypot(s.x-v.x,s.y-v.y);if(d<bd){bd=d;bi=k}});
+ const o=bi>=0?S.sites[bi]:base,pre=bi>=0?S.routes[bi].length*.5/30*60:0,air=Math.hypot(o.x-v.x,o.y-v.y)*.5;return{site:bi,from:o,air,airEta:pre+12+air/140*60}}
+function mission(){const f=S.flood;return vill.map(v=>{const wet=!!f[v.y*W+v.x],fr=S.risk.tw.find(x=>x.t===v).frac,near=wet||nearF(v)||fr>=.25,pr=v.pop*v.vul/100,ap=airPlan(v);
+ const r=near?null:route(f,base,{x:v.x,y:v.y}),cut=near||!r;
+ const ri={ok:!!r,state:wet||fr>=.25?'FLOODED':cut?'CUT OFF':'OPEN',eta:r?r.length*.5/30*60:null,km:r?r.length*.5:null};
+ return{v,pr,cut,road:r,ri,site:ap.site,from:ap.from,air:ap.air,airEta:ap.airEta,eta:cut?ap.airEta:ri.eta}})}
+function renderMis(){const el=$('mis');if(!S.mis||!S.mis.length){el.innerHTML='<span style="color:var(--mut);font-size:13.5px">Available once Route Analysis completes.</span>';return}
+ el.innerHTML='<div class="lah"><span>Town</span><span class="c">By road</span><span class="c">By air</span></div>'+[...S.mis].sort((a,b)=>b.pr-a.pr).map(m=>{const r=m.ri;
+ return `<div class="lr"><span>${m.v.n}<br><small>${m.v.pop.toLocaleString('en-IN')} people · vul ${m.v.vul}</small></span>`+
+ `<span class="c"><span class="bd" style="color:${r.ok?'var(--gr)':'var(--rd)'}">${r.state}</span><small>${r.ok?Math.round(r.eta)+' min · '+r.km.toFixed(0)+' km':'no road access'}</small></span>`+
+ `<span class="c"><span class="bd" style="color:var(--cy)">AVAILABLE</span><small>${Math.round(m.airEta)} min · ${m.site>=0?'via H'+(m.site+1):'from base'}</small></span></div>`}).join('')}
+function nearF(v){for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const i=(v.y+dy)*W+v.x+dx;if(S.flood[i])return true}return false}
+
+const cv=$('cv'),cx=cv.getContext('2d'),nf=v=>v.toLocaleString('en-IN');
+function dot(p,u,c){const q=p[Math.min(p.length-1,Math.floor(u*p.length))];cx.fillStyle=c;cx.shadowColor=c;cx.shadowBlur=10;cx.fillRect(q.x*C+C/2-4,q.y*C+C/2-4,9,9);cx.shadowBlur=0}
+function heli(x,y){cx.save();cx.translate(x,y);cx.fillStyle='#38e8ff';cx.shadowColor='#38e8ff';cx.shadowBlur=12;cx.beginPath();cx.arc(0,0,5,0,7);cx.fill();cx.shadowBlur=0;cx.rotate(S.t*14);cx.strokeStyle='#e8fbff';cx.lineWidth=2;cx.beginPath();cx.moveTo(-11,0);cx.lineTo(11,0);cx.moveTo(0,-11);cx.lineTo(0,11);cx.stroke();cx.restore()}
+function tagBox(txt,x,y,col){cx.font='12px system-ui';const w=cx.measureText(txt).width+8;cx.fillStyle='rgba(5,10,18,.78)';cx.fillRect(x-4,y-11,w,16);cx.fillStyle=col;cx.fillText(txt,x,y+1)}
+function draw(ts){const nw=ts/1000;if(S.last==null)S.last=nw;if(!paused)S.tv=(S.tv||0)+(nw-S.last);S.last=nw;S.t=S.tv||0;cx.clearRect(0,0,cv.width,cv.height);
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,e=el[i],v=veg[i];let r=16+e*7,g=30+e*9+(v>.62?18:0),b=44+e*4;cx.fillStyle=`rgb(${r|0},${g|0},${b|0})`;cx.fillRect(x*C,y*C,C,C)}
+ cx.strokeStyle='#38e8ff10';cx.lineWidth=1;for(let x=0;x<=W;x+=4){cx.beginPath();cx.moveTo(x*C,0);cx.lineTo(x*C,H*C);cx.stroke()}for(let y=0;y<=H;y+=4){cx.beginPath();cx.moveTo(0,y*C);cx.lineTo(W*C,y*C);cx.stroke()}
+ if((S.step>=1||S.running==1)&&S.flood){const rev=Math.min(1,(S.t-(S.t0||0))/2.8);cx.fillStyle=`rgba(45,127,255,${.55*Math.min(1,rev)})`;for(let i=0;i<W*H;i++)if(S.flood[i])cx.fillRect((i%W)*C,((i/W)|0)*C,C,C)}
+ else{cx.strokeStyle='#2d7fff55';cx.lineWidth=C*.5;cx.beginPath();for(let y=0;y<H;y++){const x=riverX(y)*C+C/2;y?cx.lineTo(x,y*C+C/2):cx.moveTo(x,C/2)}cx.stroke()}
+ S.routes.forEach((r,k)=>{if(!r)return;cx.strokeStyle='#ff9f43';cx.lineWidth=3;cx.setLineDash([8,6]);cx.lineDashOffset=-S.t*30;cx.shadowColor='#ff9f43';cx.shadowBlur=8;cx.beginPath();r.forEach((p,i)=>i?cx.lineTo(p.x*C+C/2,p.y*C+C/2):cx.moveTo(p.x*C+C/2,p.y*C+C/2));cx.stroke();cx.setLineDash([]);cx.shadowBlur=0});
+ (S.mis||[]).forEach((m,k)=>{
+  if(!m.cut&&m.road){cx.strokeStyle='#4dff9d';cx.lineWidth=2.5;cx.setLineDash([6,6]);cx.lineDashOffset=-S.t*24;cx.beginPath();m.road.forEach((p,i)=>i?cx.lineTo(p.x*C+C/2,p.y*C+C/2):cx.moveTo(p.x*C+C/2,p.y*C+C/2));cx.stroke();cx.setLineDash([]);dot(m.road,(S.t*.08+k*.17)%1,'#4dff9d')}
+  if(m.cut){const a={x:m.from.x*C+C/2,y:m.from.y*C+C/2},b={x:m.v.x*C+C/2,y:m.v.y*C+C/2},mx=(a.x+b.x)/2-(b.y-a.y)*.25,my=(a.y+b.y)/2+(b.x-a.x)*.25;
+   cx.strokeStyle='#38e8ff';cx.lineWidth=2.5;cx.setLineDash([3,7]);cx.lineDashOffset=-S.t*30;cx.shadowColor='#38e8ff';cx.shadowBlur=8;cx.beginPath();cx.moveTo(a.x,a.y);cx.quadraticCurveTo(mx,my,b.x,b.y);cx.stroke();cx.setLineDash([]);cx.shadowBlur=0;
+   const u=(S.t*.22+k*.19)%1,q=1-u;heli(q*q*a.x+2*q*u*mx+u*u*b.x,q*q*a.y+2*q*u*my+u*u*b.y)}});
+ S.routes.forEach((r,k)=>{if(r)dot(r,(S.t*.1+k*.23)%1,'#fff')});
+ // towns: name, population, flood status and exposed people drawn on the map
+ towns.forEach(t=>{const rk=S.step>=1&&S.risk&&S.risk.tw.find(x=>x.t===t),hit=rk&&rk.frac>0,px=t.x*C+C/2,py=t.y*C+C/2;
+  cx.strokeStyle=hit?'#ff5d7399':'#cfe3ff44';cx.lineWidth=1.5;cx.setLineDash([4,4]);cx.beginPath();cx.arc(px,py,t.r*C,0,7);cx.stroke();cx.setLineDash([]);
+  {const mm=(S.mis||[]).find(m=>m.v===t);if(mm&&mm.cut){cx.strokeStyle='#ff5d7388';cx.lineWidth=2;cx.beginPath();cx.arc(px,py,t.r*C+6+3*Math.sin(S.t*4),0,7);cx.stroke()}}cx.fillStyle=hit?'#ff5d73':'#cfe3ff';cx.fillRect(px-8,py-8,16,16);cx.fillStyle='#050a12';cx.font='bold 11px system-ui';cx.textAlign='center';cx.fillText('T',px,py+4);cx.textAlign='left';
+  cx.fillStyle='#d7e3f4';cx.font='bold 14px system-ui';cx.fillText(t.n,px+12,py+4);
+  if(rk){tagBox('Pop '+nf(t.pop),px+12,py+20,'#d7e3f4');tagBox(rk.state+' · '+nf(rk.exp)+' exposed ('+Math.round(rk.frac*100)+'%)',px+12,py+37,rk.state=='SEVERE'?'#ff5d73':rk.state=='PARTLY'?'#ff9f43':'#4dff9d')}});
+ S.sites.forEach((s,i)=>{const px=s.x*C+C/2,py=s.y*C+C/2,p=6*Math.sin(S.t*3+i);cx.strokeStyle='#4dff9d';cx.lineWidth=2;cx.shadowColor='#4dff9d';cx.shadowBlur=10;cx.beginPath();cx.arc(px,py,12+p/2,0,7);cx.stroke();cx.shadowBlur=0;cx.fillStyle='#08301c';cx.beginPath();cx.arc(px,py,9,0,7);cx.fill();cx.fillStyle='#4dff9d';cx.font='bold 15px system-ui';cx.textAlign='center';cx.fillText('H'+(i+1),px,py+4);cx.textAlign='left'});
+ cx.fillStyle='#fff';cx.fillRect(base.x*C-5,base.y*C-5,15,15);cx.fillStyle='#050a12';cx.font='bold 12px system-ui';cx.fillText('B',base.x*C,base.y*C+7);
+ // summary panel on the map
+ if(S.step>=1&&S.risk){const R=S.risk,ms=S.mis||[],cuts=ms.filter(m=>m.cut),L=[['FLOOD · '+lvl().toFixed(1)+' m','#38e8ff'],
+  [R.area.toFixed(0)+' km² flooded · max depth '+R.mx.toFixed(1)+' m','#d7e3f4'],
+  ['Towns at risk: '+R.townsAt+' of '+towns.length+' · '+nf(R.townExp)+' people','#ff9f43'],
+    ['People exposed: '+nf(R.exp)+' of '+nf(R.totalPop),'#d7e3f4']];
+  if(S.step>=2)L.push(['Safe landing sites: '+S.sites.length,'#4dff9d']);
+  if(S.step>=3)L.push(['Airlift needed: '+cuts.length+' of '+towns.length+' towns · '+nf(cuts.reduce((a,m)=>a+m.v.pop,0))+' people','#38e8ff']);
+  const bh=L.length*19+12,by=H*C-bh-10;cx.fillStyle='rgba(5,10,18,.85)';cx.strokeStyle='#38e8ff66';cx.lineWidth=1;cx.fillRect(10,by,360,bh);cx.strokeRect(10,by,360,bh);
+  cx.font='bold 13px system-ui';L.forEach((l,i)=>{cx.fillStyle=l[1];cx.fillText(l[0],20,by+22+i*19)})}
+ if(S.running){const a=((S.t-(S.tr||0))*.5)%1;cx.strokeStyle='#38e8ff';cx.shadowColor='#38e8ff';cx.shadowBlur=12;cx.lineWidth=2;cx.beginPath();cx.moveTo(0,a*H*C);cx.lineTo(W*C,a*H*C);cx.stroke();cx.shadowBlur=0}
+ if(paused){cx.fillStyle='rgba(255,159,67,.92)';cx.fillRect(W*C/2-72,12,144,34);cx.fillStyle='#1a0f00';cx.font='bold 16px system-ui';cx.textAlign='center';cx.fillText('⏸ PAUSED',W*C/2,35);cx.textAlign='left'}
+ requestAnimationFrame(draw)}
+
+const stepEls=[...document.querySelectorAll('.st')];
+let busy=false,paused=false;
+function mark(){stepEls.forEach((e,i)=>{const on=S.running==i+1,dn=i<S.step;e.classList.toggle('done',dn);e.classList.toggle('on',on);e.querySelector('.stat').textContent=dn?'Done ✔':on?'Running…':'Pending'});$('shareBtn').disabled=S.step<3||busy;if(S.step<4||busy)$('shareBtn').classList.remove('attn');document.querySelector('#bar i').style.width=((S.step+(S.running?.5:0))/4*100)+'%'}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const pwait=ms=>new Promise(r=>{let left=ms,last=performance.now();(function tick(){const n=performance.now();if(!paused)left-=n-last;last=n;left<=0?r():setTimeout(tick,50)})()});
+function setPaused(v){paused=v;const b=$('pp');b.textContent=v?'▶ Resume':'⏸ Pause';b.setAttribute('aria-pressed',v);document.body.classList.toggle('paused',v);if(v)logl('Paused. Press Resume or Space to continue')}
+$('pp').onclick=()=>setPaused(!paused);
+document.addEventListener('keydown',e=>{if(e.code=='Space'&&!/INPUT|BUTTON|TEXTAREA/.test(e.target.tagName)){e.preventDefault();setPaused(!paused)}});
+const STEP_MS=3600;
+$('run').onclick=async()=>{if(busy)return;setPaused(false);busy=true;$('run').disabled=true;$('log').innerHTML='';S.step=0;S.running=0;compute();mark();
+ logl('SDMA alert received · flood level '+lvl().toFixed(1)+' m');
+ S.running=1;S.t0=S.tr=S.t;mark();logl('Initial Flood Analysis · ingesting Sentinel-1 SAR flood extent from STAC…');await pwait(STEP_MS);
+ S.step=1;S.running=2;S.tr=S.t;compute();mark();const R=S.risk;logl('Flood extent ready · <b>'+R.area.toFixed(0)+' km² flooded</b> · towns at risk <b>'+R.townsAt+' of '+towns.length+'</b> · ~'+nf(R.exp)+' people exposed');
+ logl('Suitable Site Analysis · running DEM + slope + land-cover model…');await pwait(STEP_MS);
+ S.step=2;S.running=3;S.tr=S.t;compute();mark();logl('Site model complete · <b>'+S.sites.length+' safe landing sites</b> identified');
+ logl('Route Analysis · computing road convoys and airlift options…');await pwait(STEP_MS);
+ S.step=3;S.running=4;S.tr=S.t;compute();mark();const ok=S.routes.filter(Boolean).length;logl('Routing complete · '+ok+' road convoys to landing sites · <b>'+S.mis.filter(m=>m.cut).length+' cut-off towns need airlift</b>');
+ logl('Sharing · preparing alert message and exports…');await pwait(STEP_MS*.7);
+ S.step=4;S.running=0;busy=false;mark();$('run').disabled=false;$('run').textContent='↻ Re-run';logl('Data available for sharing ✔ · press <b>📤 Share</b>');$('shareBtn').classList.add('attn')};
+$('lvl').oninput=()=>{$('lvlv').textContent=lvl().toFixed(1)+' m';if(S.step&&!busy){compute()}};
+$('reset').onclick=()=>{if(busy)return;setPaused(false);S.step=0;S.sites=[];S.routes=[];compute();mark();$('log').innerHTML='';$('run').textContent='▶ Trigger flood alert'};
+$('surge').onclick=async()=>{if(busy||S.step<3)return;setPaused(false);$('surge').disabled=true;
+ for(let L=Math.min(lvl(),9);L<=10&&S.step>=3;L+=.5){$('lvl').value=L;$('lvl').oninput();logl('River at <b>'+L.toFixed(1)+' m</b> · re-planned: '+S.mis.filter(m=>m.cut).length+' towns need airlift');await pwait(750)}
+ $('surge').disabled=false};
+compute();mark();requestAnimationFrame(draw);
+
+// ---------- sharing (opens only when the Share button is pressed) ----------
+const shareState={sent:false};
+function shareMsg(){const ms=[...S.mis].sort((a,b)=>b.pr-a.pr),cut=ms.filter(m=>m.cut),open=ms.filter(m=>!m.cut),R=S.risk,n=nf;
+ return['FLOOD ALERT · river level '+lvl().toFixed(1)+' m',R.area.toFixed(0)+' km² flooded · max depth '+R.mx.toFixed(1)+' m',
+ 'Towns at risk: '+R.townsAt+' of '+towns.length,'People exposed: '+n(R.exp),'',
+ 'TOWNS:',...R.tw.map(x=>'• '+x.t.n+' · '+x.state+' · '+Math.round(x.frac*100)+'% of area · ~'+n(x.exp)+' of '+n(x.t.pop)+' people'),'',
+ 'Safe landing sites: '+S.sites.map((x,i)=>'H'+(i+1)).join(', '),'',
+ 'AIRLIFT ('+cut.length+'):',...cut.map(m=>'• '+m.v.n+' · '+n(m.v.pop)+' people · '+(m.site>=0?'via H'+(m.site+1):'from base')+' · ~'+Math.round(m.airEta)+' min'),'',
+ 'ROAD OPEN ('+open.length+'):',...open.map(m=>'• '+m.v.n+' · ~'+Math.round(m.ri.eta)+' min'),'','Actionable Initiatives (demo)'].join('\n')}
+function shared(what){shareState.sent=true;logl(what)}
+function openShare(){shareState.sent=false;$('smsg').value=shareMsg();$('sstat').innerHTML='';$('ssend').disabled=false;$('share').classList.remove('hide');$('ssend').focus()}
+function closeShare(){$('share').classList.add('hide')}
+$('shareBtn').onclick=()=>{if(S.step>=3&&!busy){$('shareBtn').classList.remove('attn');openShare()}};
+$('sclose').onclick=closeShare;$('share').onclick=e=>{if(e.target.id=='share')closeShare()};
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('share').classList.contains('hide'))closeShare()});
+$('ssend').onclick=async()=>{const bx=[...document.querySelectorAll('#teams label')].filter(l=>l.querySelector('input').checked);if(!bx.length){$('sstat').innerHTML='<div>Select at least one recipient.</div>';return}
+ $('ssend').disabled=true;$('sstat').innerHTML='';for(const l of bx){const n=l.textContent.trim(),d=document.createElement('div');d.textContent='Sending to '+n+'…';$('sstat').appendChild(d);await wait(650);d.innerHTML='<b>Delivered ✔</b> '+n}
+ shared('Alert delivered to '+bx.length+' team'+(bx.length>1?'s':'')+' ✔');$('ssend').disabled=false};
+$('scopy').onclick=async()=>{try{await navigator.clipboard.writeText($('smsg').value)}catch(e){$('smsg').select();document.execCommand('copy')}$('scopy').textContent='✔ Copied';setTimeout(()=>$('scopy').textContent='📋 Copy',1500);shared('Message copied to clipboard')};
+$('swa').onclick=()=>{window.open('https://wa.me/?text='+encodeURIComponent($('smsg').value),'_blank');shared('Opened WhatsApp with the alert')};
+$('smail').onclick=()=>{location.href='mailto:?subject='+encodeURIComponent('Flood alert · '+lvl().toFixed(1)+' m')+'&body='+encodeURIComponent($('smsg').value);shared('Opened email draft with the alert')};
+function save(name,href){const a=document.createElement('a');a.href=href;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$('spng').onclick=()=>{save('flood-plan-map.png',cv.toDataURL('image/png'));shared('Map image exported (PNG)')};
+$('scsv').onclick=()=>{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Town','Population','Vulnerability','Road status','Road ETA (min)','Road distance (km)','Air status','Air ETA (min)','Air launch site']];
+ [...S.mis].sort((a,b)=>b.pr-a.pr).forEach(m=>rows.push([m.v.n,m.v.pop,m.v.vul,m.ri.state,m.ri.ok?Math.round(m.ri.eta):'',m.ri.ok?m.ri.km.toFixed(1):'','AVAILABLE',Math.round(m.airEta),m.site>=0?'H'+(m.site+1):'base']));
+ save('live-accessibility.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.map(q).join(',')).join('\n')));shared('Accessibility table exported (CSV)')};
+
+// ---------- GeoAI assistant ----------
+const wn=['Ward 1 Old Town','Ward 2 Market','Ward 3 Lakeview','Ward 4 Station','Ward 5 Industrial','Ward 6 Hillside','Ward 7 Civil Lines','Ward 8 Bazaar','Ward 9 Canal Rd','Ward 10 Mill','Ward 11 Park Ave','Ward 12 Cantt','Ward 13 Slum Rehab','Ward 14 Tech Park','Ward 15 Riverside','Ward 16 Heritage','Ward 17 Depot','Ward 18 Garden','Ward 19 Port','Ward 20 New Town','Ward 21 Gate','Ward 22 Orchard','Ward 23 Quarry','Ward 24 Mandi'];
+const wr=rng(99),WD=wn.map((n,i)=>{const c=Math.round(4+wr()*38),t=+(44-c*.22+wr()*4-2).toFixed(1);return{n,heat:t,can:c,pop:Math.round(8+wr()*40)*1000,vul:Math.round(30+wr()*65)}});
+function wcol(w){const h=(w.heat-36)/12,c=1-w.can/45;return `hsl(${20-h*20},${45+h*30}%,${22+c*14}%)`}
+function renderW(hit){$('wards').innerHTML=WD.map((w,i)=>`<div class="w ${hit?(hit.includes(i)?'hit':'dim'):''}" style="background:${wcol(w)}" title="${w.n}"><span>W${i+1}</span><span>${w.heat}°<br>${w.can}%</span></div>`).join('')}
+renderW();
+const sugg=['Show wards with high heat and low tree cover','Which wards have high vulnerability and low green cover?','Where is the population large but canopy poor?','Which towns are cut off and how will relief reach them?'];
+$('chips').innerHTML=sugg.map(s=>`<button class="chip">${s}</button>`).join('');
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{$('q').value=b.textContent;ask()});
+$('send').onclick=ask;$('q').onkeydown=e=>{if(e.key=='Enter')ask()};
+function add(c,t){const d=document.createElement('div');d.className='m '+c;d.innerHTML=t;$('chat').appendChild(d);$('chat').scrollTop=1e9;return d}
+async function ask(){const q=$('q').value.trim();if(!q)return;$('q').value='';add('u',q);const lo=q.toLowerCase();
+ const m=add('a','<i style="color:var(--mut)">Interpreting request…</i>');await wait(700);
+ const used=[];let score=w=>0,desc=[];
+ const heat=/heat|hot|temperature|lst/.test(lo),tree=/tree|canopy|green|plantation|vegetation/.test(lo),vul=/vulnerab/.test(lo),pop=/popul|people|dense/.test(lo);
+ if(!(heat||tree||vul||pop)&&/cut|isolat|airlift|helic|landing|route|relief|village|town|evacuat|flood/.test(lo)){
+  if(busy){m.innerHTML='The flood workflow is still running. Ask again in a few seconds.';return}
+  if(S.step<4){m.innerHTML='No completed flood plan yet, so I am starting the SDMA workflow on the Flood Response tab.';await wait(1100);tab(1);$('run').click();return}
+  const c=S.mis.filter(x=>x.cut).sort((a,b)=>b.pr-a.pr),pp=c.reduce((a,x)=>a+x.v.pop,0);
+  m.innerHTML=c.length?`<b>${c.length} towns are cut off</b> at ${lvl().toFixed(1)} m, home to about ${pp.toLocaleString('en-IN')} people. Airlift priority (population × vulnerability):<br>${c.map(x=>x.v.n+' via '+(x.site>=0?'H'+(x.site+1):'base')+', about '+Math.round(x.eta)+' min').join('<br>')}<br><span style="color:var(--mut)">Convoys reach the remaining towns by road.</span>`:'No town is cut off at this river level, so all relief goes by road.';return}
+ if(!(heat||tree||vul||pop)){m.innerHTML='I can analyse <b>heat</b>, <b>tree canopy</b>, <b>vulnerability</b> and <b>population</b>. Try: “wards with high heat and low tree cover”.';return}
+ const mx=k=>Math.max(...WD.map(w=>w[k])),mn=k=>Math.min(...WD.map(w=>w[k]));const nz=(w,k)=>(w[k]-mn(k))/(mx(k)-mn(k));
+ const parts=[];
+ if(heat){used.push('Land Surface Temp');parts.push(w=>nz(w,'heat'));desc.push('high surface heat')}
+ if(tree){used.push('Tree canopy');parts.push(w=>1-nz(w,'can'));desc.push('low canopy')}
+ if(vul){used.push('Vulnerability index');parts.push(w=>nz(w,'vul'));desc.push('high vulnerability')}
+ if(pop){used.push('Population');parts.push(w=>nz(w,'pop'));desc.push('large population')}
+ used.push('Ward boundaries');score=w=>parts.reduce((a,f)=>a+f(w),0)/parts.length;
+ m.innerHTML='<i style="color:var(--mut)">Running overlay + ranking…</i>';await wait(900);
+ const rk=WD.map((w,i)=>({w,i,s:score(w)})).sort((a,b)=>b.s-a.s).slice(0,5);
+ renderW(rk.map(r=>r.i));
+ $('layers').innerHTML='<span style="color:var(--mut);font-size:13.5px">Layers used:</span><br>'+used.map(u=>`<span class="tag">${u}</span>`).join('');
+ const top=rk[0].w,pp=rk.reduce((a,r)=>a+r.w.pop,0);
+ m.innerHTML=`Found <b>5 priority wards</b> with ${desc.join(' + ')}. Highlighted on the map.<br><span style="color:var(--mut)">${top.n} ranks first (${top.heat}°C, ${top.can}% canopy). Together the five wards hold ~${pp.toLocaleString('en-IN')} residents, so plantation drives here give the widest cooling benefit.</span><br>${rk.map(r=>`<span class="tag">${r.w.n}</span>`).join('')}`}
+
+(function(){const h=document.getElementById('help'),o=()=>h.classList.remove('hide'),c=()=>h.classList.add('hide');
+document.getElementById('helpBtn').addEventListener('click',o);document.getElementById('hclose').addEventListener('click',c);
+h.addEventListener('click',e=>{if(e.target===h)c()});
+document.addEventListener('keydown',e=>{if(e.key=='Escape')c()});
+o();})();
+</script></body></html>
